@@ -115,6 +115,24 @@ fn save_work() {
 
         if status_output_string.contains("Your branch is up to date") {
             continue;
+        } else if status_output_string.contains("No commits yet") {
+            Command::new("git")
+                    .arg("add")
+                    .arg("-A")
+                    .spawn()
+                    .unwrap();
+
+            Command::new("git")
+                    .arg("commit")
+                    .arg("-m")
+                    .arg("\"initial commit\"")
+                    .spawn()
+                    .unwrap();
+
+            Command::new("git")
+                    .arg("push")
+                    .spawn()
+                    .unwrap();
         } else if status_output_string.contains("Your branch is behind") && !status_output_string.contains("Changes not staged for commit") && !status_output_string.contains("Untracked files") {
             Command::new("git")
                     .arg("pull")
