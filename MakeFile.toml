@@ -10,4 +10,6 @@ args = ["build"]
 command = "cargo"
 args = ["run"]
 
-
+[tasks.publish]
+command = "cargo"
+args = ["publish"]
