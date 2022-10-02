@@ -3,6 +3,7 @@ command = "cargo"
 args = ["clean"]
 
 [tasks.build]
+command = "cargo"
 
 
 
