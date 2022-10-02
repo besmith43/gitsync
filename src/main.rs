@@ -6,7 +6,7 @@ use fs_extra::dir::{get_dir_content2, DirOptions};
 use fs_extra::file::{write_all, read_to_string};
 use structopt::StructOpt;
 use chrono::prelude::*;
-use anyhow;
+use anyhow::Result;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "gitsync")]
