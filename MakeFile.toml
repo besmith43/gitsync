@@ -12,4 +12,4 @@ args = ["run"]
 
 [tasks.release]
 command = "cargo"
-args = ["build"]
+args = ["build", "--release"]
