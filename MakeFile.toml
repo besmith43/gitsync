@@ -8,6 +8,6 @@ args = "build"
 
 [tasks.run]
 command = "cargo"
-args = 
+args = ["run"]
 
 
