@@ -1,12 +1,12 @@
-use std::process::Command;
+use anyhow::Result;
+use chrono::prelude::*;
+use fs_extra::dir::{get_dir_content2, DirOptions};
+use fs_extra::file::{read_to_string, write_all};
+use std::env;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use std::env;
-use fs_extra::dir::{get_dir_content2, DirOptions};
-use fs_extra::file::{write_all, read_to_string};
+use std::process::Command;
 use structopt::StructOpt;
-use chrono::prelude::*;
-use anyhow::Result;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "gitsync")]
@@ -19,7 +19,7 @@ fn main() {
     match Opt::from_args() {
         Opt::Pull => {
             pull_updates();
-        },
+        }
         Opt::Push => {
             save_work();
         }
@@ -51,17 +51,11 @@ fn pull_updates() {
             continue;
         }
 
-        let fetch_output = Command::new("git")
-                .arg("fetch")
-                .output()
-                .unwrap();
+        let fetch_output = Command::new("git").arg("fetch").output().unwrap();
 
         io::stdout().write_all(&fetch_output.stdout).unwrap();
 
-        let status_output = Command::new("git")
-                .arg("status")
-                .output()
-                .unwrap();
+        let status_output = Command::new("git").arg("status").output().unwrap();
 
         let status_output_string = String::from_utf8(status_output.stdout).unwrap();
 
@@ -70,10 +64,7 @@ fn pull_updates() {
         if status_output_string.contains("Your branch is behind") {
             println!("running git pull at {}", &dir);
 
-            let output = Command::new("git")
-                    .arg("pull")
-                    .output()
-                    .unwrap();
+            let output = Command::new("git").arg("pull").output().unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
@@ -90,7 +81,8 @@ fn save_work() {
     let mut options = DirOptions::new();
     options.depth = 1;
 
-    let mut dir_content = get_dir_content2(std::path::PathBuf::from(&dev_folder), &options).unwrap();
+    let mut dir_content =
+        get_dir_content2(std::path::PathBuf::from(&dev_folder), &options).unwrap();
 
     dir_content.directories.remove(0);
 
@@ -107,99 +99,75 @@ fn save_work() {
             continue;
         }
 
-        Command::new("git")
-                .arg("fetch")
-                .spawn()
-                .unwrap();
+        Command::new("git").arg("fetch").spawn().unwrap();
 
-        let status_output = Command::new("git")
-                .arg("status")
-                .output()
-                .unwrap();
+        let status_output = Command::new("git").arg("status").output().unwrap();
 
         let status_output_string = String::from_utf8(status_output.stdout).unwrap();
 
         if status_output_string.contains("Your branch is up to date") {
             continue;
         } else if status_output_string.contains("No commits yet") {
-            let output = Command::new("git")
-                    .arg("add")
-                    .arg("-A")
-                    .output()
-                    .unwrap();
+            let output = Command::new("git").arg("add").arg("-A").output().unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
             log(&format!("gitsync push - {}\n{}", &dir, output_string));
 
             let output = Command::new("git")
-                    .arg("commit")
-                    .arg("-m")
-                    .arg("\"initial commit\"")
-                    .output()
-                    .unwrap();
+                .arg("commit")
+                .arg("-m")
+                .arg("\"initial commit\"")
+                .output()
+                .unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
             log(&format!("gitsync push - {}\n{}", &dir, output_string));
 
-            let output = Command::new("git")
-                    .arg("push")
-                    .output()
-                    .unwrap();
+            let output = Command::new("git").arg("push").output().unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
             log(&format!("gitsync push - {}\n{}", &dir, output_string));
-        } else if status_output_string.contains("Your branch is behind") && !status_output_string.contains("Changes not staged for commit") && !status_output_string.contains("Untracked files") {
-            let output = Command::new("git")
-                    .arg("pull")
-                    .output()
-                    .unwrap();
+        } else if status_output_string.contains("Your branch is behind")
+            && !status_output_string.contains("Changes not staged for commit")
+            && !status_output_string.contains("Untracked files")
+        {
+            let output = Command::new("git").arg("pull").output().unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
             log(&format!("gitsync push - {}\n{}", &dir, output_string));
         } else {
-            let output = Command::new("git")
-                    .arg("pull")
-                    .output()
-                    .unwrap();
+            let output = Command::new("git").arg("pull").output().unwrap();
+
+            let output_string = String::from_utf8(output.stdout).unwrap();
+
+            log(&format!("gitsync push - {}\n{}", &dir, output_string));
+
+            let output = Command::new("git").arg("add").arg("-A").output().unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
             log(&format!("gitsync push - {}\n{}", &dir, output_string));
 
             let output = Command::new("git")
-                    .arg("add")
-                    .arg("-A")
-                    .output()
-                    .unwrap();
+                .arg("commit")
+                .arg("-m")
+                .arg("\"initial commit\"")
+                .output()
+                .unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
             log(&format!("gitsync push - {}\n{}", &dir, output_string));
 
-            let output = Command::new("git")
-                    .arg("commit")
-                    .arg("-m")
-                    .arg("\"initial commit\"")
-                    .output()
-                    .unwrap();
+            let output = Command::new("git").arg("push").output().unwrap();
 
             let output_string = String::from_utf8(output.stdout).unwrap();
 
             log(&format!("gitsync push - {}\n{}", &dir, output_string));
-
-            let output = Command::new("git")
-                    .arg("push")
-                    .output()
-                    .unwrap();
-
-            let output_string = String::from_utf8(output.stdout).unwrap();
-
-            log(&format!("gitsync push - {}\n{}", &dir, output_string));
-
         }
     }
 }
