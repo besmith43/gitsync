@@ -6,6 +6,8 @@ args = ["clean"]
 command = "cargo"
 args = "build"
 
-
+[tasks.run]
+command = "cargo"
+args = 
 
 
